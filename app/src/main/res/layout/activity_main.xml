@@ -4,16 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@drawable/bg_gradient">
 
     <Button
         android:id="@+id/timeButton"
         android:layout_width="93dp"
         android:layout_height="54dp"
-        android:text="select"
+        android:background="@drawable/custom_button"
+        android:text="@string/select_button"
+        android:textColor="#441F4B"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.018"
+        app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023" />
@@ -33,8 +36,9 @@
         android:layout_width="211dp"
         android:layout_height="55dp"
         android:layout_marginTop="16dp"
-        android:background="@android:drawable/btn_dropdown"
+        android:background="@drawable/custom_button"
         android:spinnerMode="dropdown"
+        android:textColor="#441F4B"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.96"
         app:layout_constraintStart_toEndOf="@+id/timeButton"
@@ -45,13 +49,13 @@
         android:id="@+id/check_box_alarm"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:background="#429BE2"
-        android:text="Alarm turn on"
-        android:textColor="#0C0709"
-        android:textSize="20sp"
-        android:textStyle="italic"
+        android:layout_marginTop="56dp"
+        android:background="@drawable/custom_button"
+        android:text="@string/check_box_alarm"
+        android:textColor="#441F4B"
+        android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinnerAlarmSound" />
 
@@ -59,14 +63,13 @@
         android:id="@+id/check_box_Shake"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_marginTop="4dp"
-        android:background="#429BE2"
-        android:text="Shaking makes the phone open"
-        android:textColor="#0C0709"
-        android:textSize="20sp"
-        android:textStyle="italic"
+        android:layout_marginTop="56dp"
+        android:background="@drawable/custom_button"
+        android:text="@string/check_box_shake"
+        android:textColor="#441F4B"
+        android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/check_box_alarm" />
 
@@ -74,17 +77,16 @@
         android:id="@+id/check_box_sleep"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:background="#429BE2"
-        android:text="Putting the phone on the ground makes the phone sleep"
-        android:textColor="#0C0709"
-        android:textSize="20sp"
-        android:textStyle="italic"
+        android:background="@drawable/custom_button"
+        android:text="@string/check_box_sleep"
+        android:textColor="#441F4B"
+        android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/check_box_Shake"
-        app:layout_constraintVertical_bias="0.016" />
+        app:layout_constraintVertical_bias="0.181" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

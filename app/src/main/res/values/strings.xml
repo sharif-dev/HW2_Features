@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Features</string>
     <string name="select">select</string>
+    <string name="alarm_message">The alarm is on. To turn off the alarm, please rotate the phone at an angle of 2 angles around Z axis.</string>
+    <string name="check_box_shake">Shaking makes the phone open</string>
+    <string name="check_box_sleep">Putting the phone on the ground makes the phone sleep</string>
+    <string name="check_box_alarm">Alarm turn on</string>
+    <string name="select_button">select</string>
     <string-array name="items">
         <item>none</item>
         <item>item1</item>

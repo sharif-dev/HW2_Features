@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -17,6 +19,11 @@ public class RingtonePlayingService extends Service {
     MediaPlayer media_song;
     int startId;
     boolean isRunning;
+
+    private TextView textView_timer;
+    private CountDownTimer countDownTimer;
+    private long timeLeftMillisecond = 600000; // 10 min
+    private boolean timeRunning;
 
     @Nullable
     @Override
@@ -59,8 +66,20 @@ public class RingtonePlayingService extends Service {
                 break;
         }
 
-        if(startId == 1) {
+        countDownTimer = new CountDownTimer(timeLeftMillisecond , 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftMillisecond = millisUntilFinished;
+            }
 
+            @Override
+            public void onFinish() {
+
+            }
+        };
+
+        if(startId == 1) {
+            countDownTimer.start();
             if(sound_id == 1) {
                 media_song = MediaPlayer.create(this, R.raw.catalina_wine_mixer);
                 media_song.start();
@@ -85,12 +104,19 @@ public class RingtonePlayingService extends Service {
                 media_song.start();
             }
 
+            Intent intentActivity = new Intent(this, Activity2.class);
+            startActivity(intentActivity);
 
-        } else {
+        }
+        if (startId == 0 || timeLeftMillisecond < 1000){
              Log.d("there is music, ", "and you want end");
             // Stop ringtone
+            countDownTimer.cancel();
+            timeRunning = false;
             media_song.stop();
             media_song.reset();
+            Intent intentActivity = new Intent(this, MainActivity.class);
+            startActivity(intentActivity);
         }
         return START_NOT_STICKY;
     }
