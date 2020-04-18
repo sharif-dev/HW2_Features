@@ -83,25 +83,32 @@ public class RingtonePlayingService extends Service {
             if(sound_id == 1) {
                 media_song = MediaPlayer.create(this, R.raw.catalina_wine_mixer);
                 media_song.start();
+                media_song.setLooping(true);
             } else if(sound_id == 2) {
                 media_song = MediaPlayer.create(this, R.raw.inclement_weather);
                 media_song.start();
+                media_song.setLooping(true);
             } else if(sound_id == 3) {
                 media_song = MediaPlayer.create(this, R.raw.lightning_bolt);
                 media_song.start();
+                media_song.setLooping(true);
             } else if(sound_id == 4) {
                 media_song = MediaPlayer.create(this, R.raw.johnny_hopkins);
                 media_song.start();
+                media_song.setLooping(true);
             } else if(sound_id == 5) {
                 media_song = MediaPlayer.create(this, R.raw.butt_buddy);
                 media_song.start();
+                media_song.setLooping(true);
             } else if(sound_id == 6) {
                 media_song = MediaPlayer.create(this, R.raw.robert_better_not_get_in_my_face);
                 media_song.start();
+                media_song.setLooping(true);
             }
             else {
                 media_song = MediaPlayer.create(this, R.raw.kalimba);
                 media_song.start();
+                media_song.setLooping(true);
             }
 
             Intent intentActivity = new Intent(this, Activity2.class);

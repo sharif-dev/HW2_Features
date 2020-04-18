@@ -1,10 +1,18 @@
 package com.example.features;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Random;
+
+import static android.os.VibrationEffect.DEFAULT_AMPLITUDE;
+import static android.os.VibrationEffect.createOneShot;
+
 
 public class Activity2 extends AppCompatActivity {
 
@@ -18,7 +26,7 @@ public class Activity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_2);
         textView_timer = findViewById(R.id.text_view_timer);
-
+        final long[] pattern = {1200 , 1300 , 900 , 500, 1050, 700, 1000, 800, 670, 950};
         countDownTimer = new CountDownTimer(timeLeftMillisecond , 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -33,6 +41,16 @@ public class Activity2 extends AppCompatActivity {
                 }
                 timeLeftText += seconds;
                 textView_timer.setText(timeLeftText);
+
+                if (seconds % 4 == 0) {
+                    Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                    Random random = new Random();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator.vibrate(createOneShot(pattern[random.nextInt(10)], DEFAULT_AMPLITUDE));
+                    } else {
+                        vibrator.vibrate(pattern[random.nextInt(10)]);
+                    }
+                }
             }
 
             @Override
@@ -41,5 +59,10 @@ public class Activity2 extends AppCompatActivity {
             }
         }.start();
 
+
     }
+
 }
+
+
+
