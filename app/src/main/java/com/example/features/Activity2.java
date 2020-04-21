@@ -21,12 +21,15 @@ public class Activity2 extends AppCompatActivity {
     private long timeLeftMillisecond = 600000;
     private boolean timeRunning;
 
+
+    //final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_2);
         textView_timer = findViewById(R.id.text_view_timer);
-        final long[] pattern = {1200 , 1300 , 900 , 500, 1050, 700, 1000, 800, 670, 950};
+        final long[] pattern = {1200 , 1500 , 900 , 500, 1050, 700, 1000, 800, 470, 950};
         countDownTimer = new CountDownTimer(timeLeftMillisecond , 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -42,7 +45,7 @@ public class Activity2 extends AppCompatActivity {
                 timeLeftText += seconds;
                 textView_timer.setText(timeLeftText);
 
-                if (seconds % 4 == 0) {
+                if (seconds % 5 == 0 && timeRunning) {
                     Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                     Random random = new Random();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -62,6 +65,17 @@ public class Activity2 extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        timeRunning = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        timeRunning = false;
+    }
 }
 
 
