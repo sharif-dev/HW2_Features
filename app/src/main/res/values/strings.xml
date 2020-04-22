@@ -6,6 +6,7 @@
     <string name="check_box_sleep">Putting the phone on the ground makes the phone sleep</string>
     <string name="check_box_alarm">Alarm turn on</string>
     <string name="select_button">select</string>
+    <string name="miz_speed">30.00</string>
     <string-array name="items">
         <item>none</item>
         <item>item1</item>

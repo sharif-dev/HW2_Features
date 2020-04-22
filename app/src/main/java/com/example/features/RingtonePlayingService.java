@@ -122,8 +122,8 @@ public class RingtonePlayingService extends Service {
             timeRunning = false;
             media_song.stop();
             media_song.reset();
-            Intent intentActivity = new Intent(this, MainActivity.class);
-            startActivity(intentActivity);
+//            Intent intentActivity = new Intent(this, MainActivity.class);
+//            startActivity(intentActivity);
         }
         return START_NOT_STICKY;
     }

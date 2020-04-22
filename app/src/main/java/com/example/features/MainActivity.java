@@ -29,15 +29,20 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     PendingIntent pending_intent;
     int sound_select;
+    Button alarm_off;
+    Intent my_intent;
+    int number_state = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        alarm_off = (Button) findViewById(R.id.alarm_off);
 
         final AlarmManager alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         // Create intent for AlarmReceiver class, send only once
-        final Intent my_intent = new Intent(MainActivity.this, AlarmReceiver.class);
+        my_intent = new Intent(MainActivity.this, AlarmReceiver.class);
 
         Spinner spinner = findViewById(R.id.spinnerAlarmSound);
         String[] items = getResources().getStringArray(R.array.stepbrothers_array);
@@ -82,15 +87,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkBoxAlarm.isChecked()) {
-
-
-
                     my_intent.putExtra("extra", "alarm on");
-
                     my_intent.putExtra("sound_choice", sound_select);
                     pending_intent = PendingIntent.getBroadcast
                             (MainActivity.this, 0, my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(System.currentTimeMillis());
                     calendar.set(Calendar.HOUR_OF_DAY, SelectedHour);
@@ -101,20 +101,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-        Button alarm_off = (Button) findViewById(R.id.alarm_off);
         alarm_off.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "alarm off", Toast.LENGTH_SHORT).show();
-
                 alarm_manager.cancel(pending_intent);
-
-
                 my_intent.putExtra("extra", "alarm off");
-
                 my_intent.putExtra("sound_choice", sound_select);
-
                 sendBroadcast(my_intent);
             }
         });
@@ -144,4 +136,29 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (number_state > 0) {
+            alarm_off.performClick();
+        }
+        number_state++;
+    }
+
+    public void cancelAlarm() {
+
+    }
+
 }
