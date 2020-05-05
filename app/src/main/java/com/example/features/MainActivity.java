@@ -6,7 +6,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -41,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     Intent my_intent;
     int number_state = 0;
     Intent shakeService = null;
+    boolean alarmIsOn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkBoxAlarm.isChecked()) {
+                    alarmIsOn = true;
                     my_intent.putExtra("extra", "alarm on");
                     my_intent.putExtra("sound_choice", sound_select);
                     pending_intent = PendingIntent.getBroadcast
@@ -105,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
                     calendar.set(Calendar.HOUR_OF_DAY, SelectedHour);
                     calendar.set(Calendar.MINUTE, SelectedMin);
                     alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pending_intent);
+                } else {
+                    alarmIsOn = false;
                 }
             }
         });
@@ -113,10 +116,12 @@ public class MainActivity extends AppCompatActivity {
         alarm_off.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                alarm_manager.cancel(pending_intent);
-                my_intent.putExtra("extra", "alarm off");
-                my_intent.putExtra("sound_choice", sound_select);
-                sendBroadcast(my_intent);
+                if (alarmIsOn) {
+                    alarm_manager.cancel(pending_intent);
+                    my_intent.putExtra("extra", "alarm off");
+                    my_intent.putExtra("sound_choice", sound_select);
+                    sendBroadcast(my_intent);
+                }
             }
         });
 
