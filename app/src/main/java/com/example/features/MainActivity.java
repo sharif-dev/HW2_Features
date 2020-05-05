@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     Intent my_intent;
     int number_state = 0;
     Intent shakeService = null;
+    boolean alarmIsOn;
     public static final int RESULT_ENABLE = 11;
     private DevicePolicyManager devicePolicyManager;
     private ActivityManager activityManager;
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkBoxAlarm.isChecked()) {
+                    alarmIsOn = true;
                     my_intent.putExtra("extra", "alarm on");
                     my_intent.putExtra("sound_choice", sound_select);
                     pending_intent = PendingIntent.getBroadcast
@@ -122,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
                     calendar.set(Calendar.HOUR_OF_DAY, SelectedHour);
                     calendar.set(Calendar.MINUTE, SelectedMin);
                     alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pending_intent);
+                } else {
+                    alarmIsOn = false;
                 }
             }
         });
@@ -130,10 +134,12 @@ public class MainActivity extends AppCompatActivity {
         alarm_off.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                alarm_manager.cancel(pending_intent);
-                my_intent.putExtra("extra", "alarm off");
-                my_intent.putExtra("sound_choice", sound_select);
-                sendBroadcast(my_intent);
+                if (alarmIsOn) {
+                    alarm_manager.cancel(pending_intent);
+                    my_intent.putExtra("extra", "alarm off");
+                    my_intent.putExtra("sound_choice", sound_select);
+                    sendBroadcast(my_intent);
+                }
             }
         });
 
@@ -219,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
             alarm_off.performClick();
         }
         number_state++;
-//        startSleepingMode();
     }
 
     public void cancelAlarm() {
