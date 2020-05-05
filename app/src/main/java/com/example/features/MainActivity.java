@@ -1,10 +1,15 @@
 package com.example.features;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TimePicker;
@@ -21,6 +27,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.features.secondFeature.ShakeDetectionService;
 import com.example.features.secondFeature.ShakeEventListener;
+import com.example.features.thirdFeature.MyAdmin;
+import com.example.features.thirdFeature.SensorActivity;
 
 import java.util.Calendar;
 
@@ -41,11 +49,20 @@ public class MainActivity extends AppCompatActivity {
     Intent my_intent;
     int number_state = 0;
     Intent shakeService = null;
+    public static final int RESULT_ENABLE = 11;
+    private DevicePolicyManager devicePolicyManager;
+    private ActivityManager activityManager;
+    private ComponentName compName;
+    private SensorManager sensorManager;
+    private Sensor sensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        devicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        compName = new ComponentName(this, MyAdmin.class);
         alarm_off = (Button) findViewById(R.id.alarm_off);
 
         final AlarmManager alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -140,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
                         ShakeDetectionService.kill = true;
                         stopService(shakeService);
                         shakeService = null;
-                        Toast.makeText(MainActivity.this, "Shaking phone turn off", Toast.LENGTH_SHORT).show();
                     }
+                    Toast.makeText(MainActivity.this, "Shaking phone turn off", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -170,9 +187,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkBoxSleep.isChecked()) {
+                    Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                    intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName);
+                    intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Additional text explaining why we need this permission");
+                    startActivityForResult(intent, RESULT_ENABLE);
+//                    sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//                    sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+//                    sensorManager.
 
-                    Toast.makeText(MainActivity.this, "Putting phone turn on", Toast.LENGTH_SHORT).show();
                 }
+                Toast.makeText(MainActivity.this, "Putting phone turn on", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -195,10 +219,37 @@ public class MainActivity extends AppCompatActivity {
             alarm_off.performClick();
         }
         number_state++;
+//        startSleepingMode();
     }
 
     public void cancelAlarm() {
 
+    }
+    public void startSleepingMode(){
+        boolean active = devicePolicyManager.isAdminActive(compName);
+        if(active){
+            Intent intent = new Intent(this, SensorActivity.class);
+            startActivity(intent);
+            SensorActivity sensorActivity=new SensorActivity();
+            if(sensorActivity.getAccelerometerReading()[0] < 5 && sensorActivity.getAccelerometerReading()[0]>5 && sensorActivity.getAccelerometerReading()[1]<5 && sensorActivity.getAccelerometerReading()[1] >5){
+                devicePolicyManager.lockNow();
+            }
+        }else {
+            Toast.makeText(this, "You need to enable the Admin Device Features", Toast.LENGTH_SHORT).show();
+        }
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case RESULT_ENABLE :
+                if (resultCode == MainActivity.RESULT_OK) {
+                    Toast.makeText(MainActivity.this, "You have enabled the Admin Device features", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Problem to enable the Admin Device features", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 }
