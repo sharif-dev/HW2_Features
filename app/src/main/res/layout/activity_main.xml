@@ -89,5 +89,15 @@
         app:layout_constraintTop_toBottomOf="@+id/check_box_Shake"
         app:layout_constraintVertical_bias="0.181" />
 
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/check_box_sleep"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
