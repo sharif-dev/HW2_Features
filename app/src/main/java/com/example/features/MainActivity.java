@@ -6,18 +6,26 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.features.secondFeature.ShakeDetectionService;
+import com.example.features.secondFeature.ShakeEventListener;
+
 import java.util.Calendar;
+
+import static com.example.features.secondFeature.ShakeEventListener.SHAKE_MAX;
+import static com.example.features.secondFeature.ShakeEventListener.SHAKE_MIN;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     Button alarm_off;
     Intent my_intent;
     int number_state = 0;
+    Intent shakeService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,18 +120,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        // shake part //////////////////////////////
         final CheckBox checkBoxShake = findViewById(R.id.check_box_Shake);
+        final SeekBar seekBar = findViewById(R.id.seekBar);
+
         checkBoxShake.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (checkBoxShake.isChecked()) {
-
+                    if(shakeService == null){
+                        shakeService = new Intent(MainActivity.this, ShakeDetectionService.class);
+                        startService(shakeService);
+                        ShakeEventListener.setShake_rate(SHAKE_MIN + (SHAKE_MAX - SHAKE_MIN) * seekBar.getProgress() / 100);
+                        ShakeDetectionService.kill = false;
+                    }
                     Toast.makeText(MainActivity.this, "Shaking phone turn on", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (shakeService != null){
+                        ShakeDetectionService.kill = true;
+                        stopService(shakeService);
+                        shakeService = null;
+                        Toast.makeText(MainActivity.this, "Shaking phone turn off", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (shakeService != null){
+                    ShakeEventListener.setShake_rate(SHAKE_MIN + (SHAKE_MAX - SHAKE_MIN) * seekBar.getProgress() / 100);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        //
         final CheckBox checkBoxSleep = findViewById(R.id.check_box_sleep);
         checkBoxSleep.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,8 +175,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
     @Override
