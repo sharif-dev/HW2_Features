@@ -1,5 +1,6 @@
 package com.example.features;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -9,7 +10,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,19 +27,19 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.features.secondFeature.ShakeDetectionService;
 import com.example.features.secondFeature.ShakeEventListener;
 import com.example.features.thirdFeature.MyAdmin;
-import com.example.features.thirdFeature.SensorActivity;
 
 import java.util.Calendar;
 
 import static com.example.features.secondFeature.ShakeEventListener.SHAKE_MAX;
 import static com.example.features.secondFeature.ShakeEventListener.SHAKE_MIN;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     int mMin, mHour;
     int SelectedHour;
@@ -57,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private Sensor sensor;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,22 +71,24 @@ public class MainActivity extends AppCompatActivity {
         activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         compName = new ComponentName(this, MyAdmin.class);
         alarm_off = (Button) findViewById(R.id.alarm_off);
-
         final AlarmManager alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         // Create intent for AlarmReceiver class, send only once
         my_intent = new Intent(MainActivity.this, AlarmReceiver.class);
 
         Spinner spinner = findViewById(R.id.spinnerAlarmSound);
         String[] items = getResources().getStringArray(R.array.stepbrothers_array);
-        ArrayAdapter<String>adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item,items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, items);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(parent.getContext(), "Spinner item is " + id, Toast.LENGTH_SHORT).show();
-                sound_select = (int) id;;
+                sound_select = (int) id;
+                ;
             }
 
             @Override
@@ -88,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         Button btn = findViewById(R.id.timeButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,11 +106,11 @@ public class MainActivity extends AppCompatActivity {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        Toast.makeText(MainActivity.this, ""+hourOfDay+":"+minute, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "" + hourOfDay + ":" + minute, Toast.LENGTH_SHORT).show();
                         SelectedHour = hourOfDay;
                         SelectedMin = minute;
                     }
-                }, mHour, mMin,true);
+                }, mHour, mMin, true);
                 timePickerDialog.show();
             }
         });
@@ -151,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkBoxShake.isChecked()) {
-                    if(shakeService == null){
+                    if (shakeService == null) {
                         shakeService = new Intent(MainActivity.this, ShakeDetectionService.class);
                         startService(shakeService);
                         ShakeEventListener.setShake_rate(SHAKE_MIN + (SHAKE_MAX - SHAKE_MIN) * seekBar.getProgress() / 100);
@@ -159,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Toast.makeText(MainActivity.this, "Shaking phone turn on", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (shakeService != null){
+                    if (shakeService != null) {
                         ShakeDetectionService.kill = true;
                         stopService(shakeService);
                         shakeService = null;
@@ -172,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (shakeService != null){
+                if (shakeService != null) {
                     ShakeEventListener.setShake_rate(SHAKE_MIN + (SHAKE_MAX - SHAKE_MIN) * seekBar.getProgress() / 100);
                 }
             }
@@ -197,12 +204,10 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName);
                     intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Additional text explaining why we need this permission");
                     startActivityForResult(intent, RESULT_ENABLE);
-//                    sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-//                    sensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
-//                    sensorManager.
-
+                    Toast.makeText(MainActivity.this, "Putting phone turn on", Toast.LENGTH_SHORT).show();
+                }else {
+                    devicePolicyManager.removeActiveAdmin(compName);
                 }
-                Toast.makeText(MainActivity.this, "Putting phone turn on", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -216,8 +221,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        sensorManager.unregisterListener(this);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onResume() {
         super.onResume();
@@ -225,28 +232,23 @@ public class MainActivity extends AppCompatActivity {
             alarm_off.performClick();
         }
         number_state++;
-    }
-
-    public void cancelAlarm() {
-
-    }
-    public void startSleepingMode(){
-        boolean active = devicePolicyManager.isAdminActive(compName);
-        if(active){
-            Intent intent = new Intent(this, SensorActivity.class);
-            startActivity(intent);
-            SensorActivity sensorActivity=new SensorActivity();
-            if(sensorActivity.getAccelerometerReading()[0] < 5 && sensorActivity.getAccelerometerReading()[0]>5 && sensorActivity.getAccelerometerReading()[1]<5 && sensorActivity.getAccelerometerReading()[1] >5){
-                devicePolicyManager.lockNow();
-            }
-        }else {
-            Toast.makeText(this, "You need to enable the Admin Device Features", Toast.LENGTH_SHORT).show();
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer,
+                    SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
+        }
+        Sensor magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (magneticField != null) {
+            sensorManager.registerListener(this, magneticField,
+                    SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
         }
     }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case RESULT_ENABLE :
-                if (resultCode == MainActivity.RESULT_OK) {
+        switch (requestCode) {
+            case RESULT_ENABLE:
+                if (resultCode == Activity.RESULT_OK) {
                     Toast.makeText(MainActivity.this, "You have enabled the Admin Device features", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Problem to enable the Admin Device features", Toast.LENGTH_SHORT).show();
@@ -256,5 +258,26 @@ public class MainActivity extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    public void cancelAlarm() {
+
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float x =event.values[0];
+        float y =event.values[1];
+        float z =event.values[2];
+        boolean active = devicePolicyManager.isAdminActive(compName);
+        if (active) {
+            if (x < 1 && x > -1 && y < 1 && y > -1) {
+                devicePolicyManager.lockNow();
+            }
+        }
+    }
+
 
 }
